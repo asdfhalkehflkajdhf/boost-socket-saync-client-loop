@@ -47,10 +47,7 @@ client_poll.cpp
 		
 
 rpc client  存在问题：
-	1、socket error 104, “服务器过早终止”错误	server terminated prematurely。经常是一端异常中断发送RST，另一端仍然有读写操作，会产生SIGPIPE信号，该信号的默认行为是终止进程。在捕获或是忽略信息时，第二次写操作都将返回EPIPE错误。https://blog.csdn.net/terence1212/article/details/51881659
-		没有对中断信号进行处理
-	
-	2、client_pool退出时异常
+
 	3、client只有增加链接操作，没有删除链接操作。
 	4、增加链接方式只有动态增长方式。
 	5、没有添加配置方式，使用参数可调整。
