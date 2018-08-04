@@ -39,7 +39,8 @@ class client_loop_pool{
     typedef boost::unique_lock<boost::shared_mutex> write_lock;
     boost::shared_mutex read_write_mutex;
 
-
+	// 设置clinet方式
+	client_send_queue csq_=client_send_queue::CSQ_ON;
 public:
     client_loop_pool(){}
     ~client_loop_pool(){
@@ -103,6 +104,12 @@ public:
         return instance;
     }
 
+	void set_csq(bool v){
+		if(v)
+			csq_=client_send_queue::CSQ_ON;
+		else
+			csq_=client_send_queue::CSQ_OFF;
+	}
 private:
     int BKDR_hash(const string str){
         register int hash = 0;
@@ -133,7 +140,7 @@ private:
                 io_service_ptr ios_t(new boost::asio::io_service());
 
                 io_service_list.push_back(ios_t);
-                client_list.push_back(client_ptr( new client_loop(*ios_t.get(), ip,port)));
+                client_list.push_back(client_ptr( new client_loop(*ios_t.get(), ip, port, csq_)));
                 //设置work
                 work_list.push_back(work_ptr(new boost::asio::io_service::work(*(ios_t.get()))));
                 //启动io_server

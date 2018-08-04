@@ -32,12 +32,18 @@ typedef std::shared_ptr<RPCStructHead> recvHead_ptr;
 typedef SafeQueue<RPCStruct_ptr> RPCStruct_queue;
 typedef SafeMap<int , RPCStruct_ptr> RPCStruct_map;
 
+enum client_send_queue{
+	CSQ_OFF,
+	CSQ_ON
+};
 
 class client_loop
 {
 private:
     string ip_;
     int port_;
+	//是否设置发送队列
+	client_send_queue csq_;
 public:
     boost::asio::io_service &io_service_;
 private:
@@ -65,8 +71,8 @@ private:
 
 public:
     //初始化参数说明：应该按类中变量顺序时行排列，否则会出warning
-    client_loop(boost::asio::io_service &io_service, string ip, int port)
-        : ip_(ip), port_(port),
+    client_loop(boost::asio::io_service &io_service, string ip, int port, client_send_queue csq=client_send_queue::CSQ_ON)
+        : ip_(ip), port_(port), csq_(csq),
           io_service_(io_service),
             socket_(nullptr), //使得成员函数能直接使用这些变量
             e_timer(io_service),
@@ -93,8 +99,11 @@ public:
 		//新建一个发送发送msg，　在发送动作完成时删除，不进行状态更新检测。结果由接收端进行超时删除。
 		//和一个接收msg　buff，　在取走或超时时删除
         RPCStruct_ptr tmsg = newMsgBuf(msg,msgL);
-        io_service_.post(boost::bind(&client_loop::do_write, this)); //将消息主动投递给io_service
-        return tmsg->head().req_id();
+		if(csq_==client_send_queue::CSQ_ON)
+        	io_service_.post(boost::bind(&client_loop::do_write, this)); //开始请求发送消息队列内容
+        else
+			io_service_.post(boost::bind(&client_loop::do_write, this, tmsg)); //将消息主动投递给io_service
+		return tmsg->head().req_id();
 	}
 	//读取回复请求消息
 	RPCStruct_ptr read(int reqid){
@@ -133,13 +142,7 @@ public:
 
     void close(){
         io_service_.post(boost::bind(&client_loop::do_close, this)); //这个close函数是客户端要主动终止时调用  do_close函数是从服务器端
-        
-		//等待接收map数据删除完成,防止其数据未操作完成提前结束
-    	// while(recv_msg_map_.size()){
-			// usleep(1);
-		// }
-
-	}
+    }
 	
     bool is_open(){
 		bool res = socket_->is_open();
@@ -263,6 +266,7 @@ private:
     }
 
 	//do_write函数只管发，只发一次，发送失败时则不处理，由接收进行超时设置
+	//消息队列发送函数
     void do_write()
     {
  		if(clietn_status != CT_CONN_OK){
@@ -285,14 +289,38 @@ private:
             }
         }
     }
+	//do_write函数只管发，只发一次，发送失败时则不处理，由接收进行超时设置
+	//无消息队列发送函数
+    void do_write(RPCStruct_ptr res)
+    {
+ 		if(clietn_status != CT_CONN_OK){
+			return;
+		}
+        // if(write_msg_queue_.size())
+        {
+            //这里如果，消息队列不为空，则只添加消息不启动写队列，因为有一个正在写
+            //消息队列为空，则添加消息后，启动一个写操作
+            //RPCStruct_ptr res = write_msg_queue_.pop();
+            if(res){
+				std::cout<<"2 do_write reqid["<<res->head().req_id()<<"] send async data_len=["<<res->data_len()<<"]"<<std::endl;
+				res->showInfo();
+                boost::asio::async_write(*socket_,
+                      boost::asio::buffer(res->data(), res->data_len()),
+                      boost::bind(&client_loop::handle_write,
+                        this,
+                        boost::asio::placeholders::error));
 
+            }
+        }
+    }
     void handle_write(const boost::system::error_code& error)
     {
 		if(!is_open())return;
         if (!error)
         {
 			std::cout<<"3 cal handle_write ok"<<std::endl;
-            do_write();
+			if(csq_ == client_send_queue::CSQ_ON)
+				do_write();
         }
         else
         {
@@ -314,7 +342,8 @@ private:
 		char meta_s[9]="12345678";
 		res->meta(meta_s);
 		//添加到发送队列
-        write_msg_queue_.push(res);
+		if(csq_ == client_send_queue::CSQ_ON)
+	        write_msg_queue_.push(res);
 		std::cout<<"1 reqid["<<res->head().req_id()<<"] body["<<res->body()<<"] add to write_msg_queue"<<std::endl;
 
         RPCStruct_ptr recv(new RPCStruct(io_service_));
@@ -367,7 +396,8 @@ private:
 
     //10分钟　输出一次，一天8640条记录
     void log_timer(){
-        std::cout<<"cal "<<ip_<<":"<<port_<<" | send queue size: "<<write_msg_queue_.size()<<endl;
+		if(csq_ == client_send_queue::CSQ_ON)
+	        std::cout<<"cal "<<ip_<<":"<<port_<<" | send queue size: "<<write_msg_queue_.size()<<endl;
         std::cout<<"cal "<<ip_<<":"<<port_<<" | recv map size: "<<recv_msg_map_.size()<<endl;
         //初始化定时器
         l_timer.expires_from_now(boost::posix_time::seconds(l_timer_i));

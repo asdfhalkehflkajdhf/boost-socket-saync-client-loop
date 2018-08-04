@@ -8,29 +8,35 @@ int main(int argc, char* argv[])
     int port=6688;
 	
 	cout<<"============================="<<endl;
-	cout<<"para [ip] [port]"<<endl;
-	cout<<"para [port]"<<endl;
-	cout<<"para default "<<ip<<":"<<port<<endl;
+	cout<<"para <is user msg qeueu[y/n]> [ip] [port]"<<endl;
+	cout<<"para <is user msg qeueu[y/n]> [port]"<<endl;
+	cout<<"para <is user msg qeueu[y/n]> default "<<ip<<":"<<port<<endl;
 	cout<<"============================="<<endl;
 
     boost::asio::io_service io_service_;
 	
-	if (argc ==2)
+	if(argc<2)
+		exit(1);
+	
+	client_send_queue csq = (argv[1][0]=='y' || argv[1][0]=='Y' )?client_send_queue::CSQ_ON:client_send_queue::CSQ_OFF;
+	
+	if (argc ==3)
 	{
-		port = atoi(argv[1]);
-	}else if(argc >= 3){
-		ip=argv[1];
 		port = atoi(argv[2]);
+	}else if(argc == 4){
+		ip=argv[2];
+		port = atoi(argv[3]);
+	}else{
+		exit(1);
 	}
 	
-	std::cout<<"cur ["<<ip<<":"<<port<<"]"<<endl;
+	std::cout<<"cur ["<<ip<<":"<<port<<"] is user qeueu["<<argv[1]<<"]"<<endl;
 
     try
     {
-
-
         //client_loop c(io_service_, string(argv[1]), atoi(argv[2]));
-        client_loop c(io_service_, string(ip), port);
+		
+        client_loop c(io_service_, string(ip), port, csq);
 
         boost::thread t(boost::bind(&boost::asio::io_service::run, &c.io_service_));
 

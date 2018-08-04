@@ -42,9 +42,9 @@ void single_test(int pid){
 }
 
 
-const int sendTime=200;
+int sendTime=200;
 const int pthreadNum=4;
-void pthread_fun(int pid){
+void test_fun(int pid){
 
     const int max_body_length=1024;
     char line[max_body_length]={0};
@@ -81,7 +81,7 @@ void pthread_test(){
 	boost::thread *t[pthreadNum];
 
     for(int i=0; i<pthreadNum; ++i){
-        t[i]=new boost::thread(pthread_fun, i);
+        t[i]=new boost::thread(test_fun, i);
     }
 
     for(int i=0; i<pthreadNum; ++i){
@@ -96,15 +96,16 @@ void pthread_test(){
 int main(int argc, char* argv[])
 {
 
-    if (argc < 3)
+    if (argc < 4)
     {
-      std::cerr << "Usage: link_server s <port> [<port> ...]\n";
-      std::cerr << "Usage: link_server m <port> [<port> ...]\n";
+      std::cerr << "Usage: link_server s <sendtimes> <port> [<port> ...]\n";
+      std::cerr << "Usage: link_server m <sendtimes> <port> [<port> ...]\n";
       return 1;
     }
 
+	sendTime=atoi(argv[2]);
 
-    for (int i = 2; i < argc; ++i)
+    for (int i = 3; i < argc; ++i)
     {
         port_list.push_back(atoi(argv[i]));
     }

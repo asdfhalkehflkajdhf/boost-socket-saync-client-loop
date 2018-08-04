@@ -32,7 +32,6 @@ add_library(PUB_LIB ${lib_pub})
 aux_source_directory( ${client_SOURCE_DIR}/src/server src_server)
 aux_source_directory( ${client_SOURCE_DIR}/src/client_loop src_client)
 aux_source_directory( ${client_SOURCE_DIR}/src/client_loop_pool src_client_loop_pool)
-aux_source_directory( ${client_SOURCE_DIR}/src/client_no_queue src_client_no_queue)
 
 
 
@@ -40,7 +39,6 @@ aux_source_directory( ${client_SOURCE_DIR}/src/client_no_queue src_client_no_que
 add_executable(c ${src_client} )
 add_executable(p ${src_client_loop_pool} )
 add_executable(s ${src_server} )
-add_executable(cnq ${src_client_no_queue} )
 
 
 INCLUDE_DIRECTORIES(
@@ -66,17 +64,13 @@ TARGET_LINK_LIBRARIES(
 	PUB_LIB
 	boost_system boost_filesystem boost_thread  pthread
 )
-TARGET_LINK_LIBRARIES(
-	cnq
-	PUB_LIB
-	boost_system boost_filesystem boost_thread 
-)
+
 
 set(client_BUILD_DIR ${client_SOURCE_DIR}/build)
 set(client_OUTPUT_DIR ${client_SOURCE_DIR}/build/output)
 
 ADD_CUSTOM_COMMAND(
-	OUTPUT c s p cnq
+	OUTPUT c s p 
 	POST_BUILD
 # execute_process(
 	COMMAND mkdir -p ${client_OUTPUT_DIR}/bin
@@ -89,6 +83,5 @@ ADD_CUSTOM_COMMAND(
 	COMMAND cp -rf ${client_BUILD_DIR}/c ${client_OUTPUT_DIR}/bin
 	COMMAND cp -rf ${client_BUILD_DIR}/s ${client_OUTPUT_DIR}/bin
 	COMMAND cp -rf ${client_BUILD_DIR}/p ${client_OUTPUT_DIR}/bin
-	COMMAND cp -rf ${client_BUILD_DIR}/cnq ${client_OUTPUT_DIR}/bin
 
 )
