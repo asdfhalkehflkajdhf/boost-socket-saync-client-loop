@@ -126,6 +126,13 @@
 // 122 #define EDQUOT 122 // Quota exceeded 
 // 123 #define ENOMEDIUM 123 // No medium found 
 // 124 #define EMEDIUMTYPE 124 // Wrong medium type
+// 125:Operation canceled
+// 126:Required key not available
+// 127:Key has expired
+// 128:Key has been revoked
+// 129:Key was rejected by service
+// 130:Owner died
+// 131:State not recoverable
 #include <iostream>
 #include <string>
 #include <map>

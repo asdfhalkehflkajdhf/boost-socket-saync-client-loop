@@ -89,12 +89,23 @@ void pthread_test(){
 		cout<<"join "<<i<<endl;
 		delete t[i];
     }
+	
+	//销毁池
+	c.destroy();
 
+}
+
+void signal_stop(int) {
+	//销毁池
+	c.destroy();
 }
 
 
 int main(int argc, char* argv[])
 {
+    signal(SIGPIPE, SIG_IGN);
+    signal(SIGTERM, signal_stop);
+    signal(SIGINT, signal_stop);
 
     if (argc < 4)
     {

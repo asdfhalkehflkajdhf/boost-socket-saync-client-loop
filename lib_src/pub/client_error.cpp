@@ -125,12 +125,19 @@ std::map<int, std::string> error_map{
 ,{122 ," EDQUOT 122 // Quota exceeded "}
 ,{123 ," ENOMEDIUM 123 // No medium found "}
 ,{124 ," EMEDIUMTYPE 124 // Wrong medium type"}
+,{125 ," 125 // Operation canceled"}
+,{126 ," 126 // Required key not available"}
+,{127 ," 127 // Key has expired"}
+,{128 ," 128 // Key has been revoked"}
+,{129 ," 129 // Key was rejected by service"}
+,{130 ," 130 // Owner died"}
+,{131 ," 131 // State not recoverable"}
 };
 
 std::string error_msg(int eid){
 	if(error_map.find(eid)!=error_map.end()){
 		return error_map[eid];
 	}else{
-		return " unkown "+std::to_string(eid)+" unkown";
+		return " unkown "+std::to_string(eid)+" // unkown";
 	}
 }

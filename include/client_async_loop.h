@@ -85,14 +85,20 @@ public:
         log_timer();
 	}
 	~client_loop(){
+		destroy();
+	}
+	void destroy(){
 		//等等待所有数据处理完成
 		while(write_msg_queue_.size() || recv_msg_map_.size())
 			std::this_thread::sleep_for(std::chrono::milliseconds (1));
 		
 		do_close();
-		delete socket_;
+		
+		if(socket_){
+			delete socket_;
+			socket_=nullptr;
+		}
 	}
-
 	int write(const char *msg, int msgL)
 	{
 		//std::cout<<socket_->is_open()<<clietn_status<<std::endl;
@@ -358,11 +364,14 @@ private:
 
     void do_close()
     {
+		if(CT_CONN_CLOSE == clietn_status)return;
 		clietn_status=CT_CONN_CLOSE;
         //发生异常后关闭　client，当再次使用时，会请请求链接
-        socket_->shutdown(boost::asio::ip::tcp::socket::shutdown_both);
-        socket_->cancel();
-        socket_->close();
+		if(socket_){
+			socket_->shutdown(boost::asio::ip::tcp::socket::shutdown_both);
+			socket_->cancel();
+			socket_->close();
+		}
     }
 
 

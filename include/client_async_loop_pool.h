@@ -44,12 +44,15 @@ class client_loop_pool{
 public:
     client_loop_pool(){}
     ~client_loop_pool(){
+		destroy();
+    }
 
+	void destroy(){
         //停止io_server
-        for (client_ptr &client: client_list)
-        {
-            client->close();
-        }
+		while(client_list.size()){
+			client_list[0]->destroy();
+			client_list.erase(client_list.begin());
+		}
 
 		//停止io_server
         for (work_ptr &work: work_list)
@@ -68,9 +71,8 @@ public:
             t->join();
 			std::cout<<"pool join"<<std::endl;
         }
-
-    }
-
+	}
+	
     //发送前检查,-1 时，没有可用链接
     clientHandle write(string ip, int port, char*sendData, int sendSize){
         clientHandle res;
