@@ -22,11 +22,26 @@ client_async_loop.h
 
 		对于socket链接出错可以比较方便处理 ，消息还在可以重新链接发送
 		
+		1、设置删除时间间隔，单位秒
+			client_loop::set_etimeri
+		2、设置日志输出时间间隔，单位分
+			client_loop::set_ltimeri
+		3、请求发发送消息.	//返回请求id 用于区分发送的是那个消息，用于接收(reqid)
+			int write(const char *msg, int msgL, int timeout=80)
+		4、请求接收消息
+			RPCStruct_ptr read(int reqid)
+		
 client.cpp
 	client_async_loop 测试
 		
-client_async_loop_poll.h
+client_async_loop_pool.h
 	对client_async_loop可行池化
+		1、设置最大客户端数
+			client_loop_pool::set_c_max_num
+		2、设置消息队列方式
+			client_loop_pool::set_csq
+		3、删除链接操作：注意，没有进行过测试
+			void destroy(string ip, int port)
 client_poll.cpp
 	client_async_loop_poll 测试
 		
@@ -39,16 +54,13 @@ client_poll.cpp
 	yum install boost*
 	
 ＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝
-4、设置最大客户端数
-	client_loop_pool
-    		//当前链接数，和ip port hash 集合
-    		const int client_max_num=10;
-		释放接收数据时间间隔 6秒
+4、
+
+
 		
 
 rpc client  存在问题：
 
-	3、client只有增加链接操作，没有删除链接操作。
 	4、增加链接方式只有动态增长方式。
 	5、没有添加配置方式，使用参数可调整。
 

@@ -99,12 +99,14 @@ public:
 			socket_=nullptr;
 		}
 	}
-	int write(const char *msg, int msgL)
+	
+	//返回请求id 用于区分发送的是那个消息，用于接收
+	int write(const char *msg, int msgL, int timeout=80)
 	{
 		//std::cout<<socket_->is_open()<<clietn_status<<std::endl;
 		//新建一个发送发送msg，　在发送动作完成时删除，不进行状态更新检测。结果由接收端进行超时删除。
 		//和一个接收msg　buff，　在取走或超时时删除
-        RPCStruct_ptr tmsg = newMsgBuf(msg,msgL);
+        RPCStruct_ptr tmsg = newMsgBuf(msg,msgL,timeout);
 		if(csq_==client_send_queue::CSQ_ON)
         	io_service_.post(boost::bind(&client_loop::do_write, this)); //开始请求发送消息队列内容
         else
@@ -335,7 +337,7 @@ private:
         }
     }
     //完成发送消息队列和接收消息map新建
-    RPCStruct_ptr newMsgBuf(const char *msg, int msgL){
+    RPCStruct_ptr newMsgBuf(const char *msg, int msgL, int timeout=80){
         RPCStruct_ptr res(new RPCStruct(io_service_));
         RPCStructHead head;
         head.req_id(msg_index_++);
@@ -353,11 +355,11 @@ private:
 		std::cout<<"1 reqid["<<res->head().req_id()<<"] body["<<res->body()<<"] add to write_msg_queue"<<std::endl;
 
         RPCStruct_ptr recv(new RPCStruct(io_service_));
-        recv->do_init_timer();
 		//必须设置头部 请求id
 		//因为可能在异步读取时，在没写完成时，被先取到头reqid等待
 		recv->head().req_id(head.req_id());
         recv_msg_map_[head.req_id()]=recv;
+		recv->do_init_timer(timeout);
 		std::cout<<"1 reqid["<<recv->head().req_id()<<"] add to recv_msg_queue"<<std::endl;
         return res;
     }
