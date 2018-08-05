@@ -182,12 +182,12 @@ private:
             return;
         }
 
+		//加写锁
+		write_lock rlock(read_write_mutex);
 		auto result_1 = link_set_poll.insert(BKDR_hash(ip)+port);
 		//insert 成功返回值为1,需要新建link,
 		//未成功时，insert 返回值为0 集合中已经存在，不需要再新建
 		if(result_1.second){
-			//加写锁
-			write_lock rlock(read_write_mutex);
 			client_list.push_back(pool_client_ptr( new pool_client_(ip,port)));
 			++cur_client_index;
 		}
