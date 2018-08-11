@@ -1,0 +1,20 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+../include/client_error.h
+iostream
+-
+string
+-
+map
+-
+
+/home/workspace/client/lib_src/pub/client_error.cpp
+client_error.h
+/home/workspace/client/lib_src/pub/client_error.h
+

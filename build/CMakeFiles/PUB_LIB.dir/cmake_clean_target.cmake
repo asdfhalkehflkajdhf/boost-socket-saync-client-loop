@@ -1,0 +1,3 @@
+FILE(REMOVE_RECURSE
+  "libPUB_LIB.a"
+)

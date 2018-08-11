@@ -1,0 +1,5 @@
+/home/workspace/client/build/CMakeFiles/PUB_LIB.dir
+/home/workspace/client/build/CMakeFiles/c.dir
+/home/workspace/client/build/CMakeFiles/cnq.dir
+/home/workspace/client/build/CMakeFiles/p.dir
+/home/workspace/client/build/CMakeFiles/s.dir
