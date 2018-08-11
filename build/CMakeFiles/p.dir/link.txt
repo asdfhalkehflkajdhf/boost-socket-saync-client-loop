@@ -1,1 +1,0 @@
-/usr/local/bin/c++   -std=c++11 -g    CMakeFiles/p.dir/src/client_loop_pool/client_pool.cpp.o  -o p -rdynamic libPUB_LIB.a -lboost_system -lboost_filesystem -lboost_thread -lpthread 

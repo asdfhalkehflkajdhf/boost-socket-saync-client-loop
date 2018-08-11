@@ -1,1 +1,0 @@
-/usr/local/bin/c++   -std=c++11 -g    CMakeFiles/s.dir/src/server/server.cpp.o  -o s -rdynamic libPUB_LIB.a -lboost_system -lboost_filesystem -lboost_thread -lpthread 

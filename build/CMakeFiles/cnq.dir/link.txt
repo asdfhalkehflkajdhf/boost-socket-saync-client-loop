@@ -1,1 +1,0 @@
-/usr/local/bin/c++   -std=c++11 -g    CMakeFiles/cnq.dir/src/client_no_queue/client_no_queue.cpp.o  -o cnq -rdynamic libPUB_LIB.a -lboost_system -lboost_filesystem -lboost_thread 

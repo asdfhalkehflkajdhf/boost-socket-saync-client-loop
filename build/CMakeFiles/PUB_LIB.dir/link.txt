@@ -1,2 +1,0 @@
-/usr/bin/ar cr libPUB_LIB.a  CMakeFiles/PUB_LIB.dir/lib_src/pub/client_error.cpp.o
-/usr/bin/ranlib libPUB_LIB.a
